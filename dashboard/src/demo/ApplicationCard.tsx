@@ -25,6 +25,7 @@ export default function ApplicationCard({
         <Space>
           <Network size={18} color="var(--fn-color-brand, #1677ff)" />
           <Typography.Text strong>{data.title}</Typography.Text>
+          {data.live && <Tag color="green">实时联网</Tag>}
         </Space>
         <div>
           <Typography.Title level={5} style={{ margin: 0 }}>
@@ -50,6 +51,22 @@ export default function ApplicationCard({
             </div>
           ))}
         </Space>
+        {data.live && (
+          <Typography.Text type="secondary">
+            {data.model} · {data.sources?.length || 0} 个公开来源 ·
+            点击来源可核验
+          </Typography.Text>
+        )}
+        {data.sources?.slice(0, 3).map((source) => (
+          <Typography.Link
+            key={source.url}
+            href={source.url}
+            target="_blank"
+            rel="noreferrer"
+          >
+            [{source.index}] {source.title}
+          </Typography.Link>
+        ))}
         <Button
           type="primary"
           icon={<ArrowRight size={15} />}

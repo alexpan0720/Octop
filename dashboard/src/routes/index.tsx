@@ -101,6 +101,7 @@ export const pathToKey: Record<string, string> = {
  * Pages that should fill the entire content area without padding/scroll wrapper.
  */
 export const FULLSCREEN_PATHS = new Set([
+  "/applications/industry-research",
   "/workbench",
   "/workbench/terminal",
   "/workbench/browser",

@@ -48,6 +48,7 @@ import {
 } from "./utils/chromeInstallGate";
 import { isFileToolName } from "./constants";
 import { browserApi } from "../../api/modules/browser";
+import { industryResearchApi } from "../../api/modules/industryResearch";
 import { octopThreadsApi } from "../../api/modules/octopThreads";
 import type { TokenUsage } from "../../api/types";
 import type { ChatAttachment } from "./hooks/useChat";
@@ -107,7 +108,7 @@ import {
 import styles from "./index.module.less";
 import TenantSwitcher from "../../demo/TenantSwitcher";
 import { useDemoTenant } from "../../demo/DemoTenantContext";
-import { runDemoAgent, trackEvent } from "../../demo/storage";
+import { saveResearchContext, trackEvent } from "../../demo/storage";
 
 export default function ChatPage() {
   return <ChatPageInner />;
@@ -366,6 +367,10 @@ function ChatPageInner() {
     [messages],
   );
   const pendingAsk = useMemo(() => findPendingAsk(messages), [messages]);
+  const hasDemoMessages = useMemo(
+    () => messages.some((item) => Boolean(item.metadata?.demoApplicationCard)),
+    [messages],
+  );
 
   const refreshBrowserRef = useRef<() => void>(() => {});
 
@@ -691,19 +696,20 @@ function ChatPageInner() {
       overrides?: ChatSendOverrides,
     ) => {
       const trimmedText = text.trim();
-      if (trimmedText.startsWith("@产业智能研究")) {
-        const question = trimmedText.replace(/^@产业智能研究\s*/, "").trim();
+      const isIndustryResearchIntent =
+        trimmedText.startsWith("@产业智能研究") ||
+        /^(请)?调研.+产业/.test(trimmedText);
+      if (isIndustryResearchIntent) {
+        const question = trimmedText.startsWith("@产业智能研究")
+          ? trimmedText.replace(/^@产业智能研究\s*/, "").trim()
+          : trimmedText;
         if (!question) {
           antMessage.info("请在 @产业智能研究 后输入研究问题");
           return;
         }
-        const result = runDemoAgent({
-          tenantId: tenant.id,
-          userId: tenant.defaultUser.id,
-          message: question,
-        });
         const sessionKey = activeThreadId || "__empty__";
         const current = chatStore.getSnapshot(sessionKey).messages;
+        const assistantId = crypto.randomUUID();
         chatStore.setMessages(sessionKey, [
           ...current,
           {
@@ -714,35 +720,105 @@ function ChatPageInner() {
             status: "done",
           },
           {
-            id: crypto.randomUUID(),
+            id: assistantId,
             role: "assistant",
-            content: result.answer,
+            content:
+              "正在调用 Kimi Search Pro 检索最新公开资料，并由 Kimi 模型分析产业链和重点企业……",
             timestamp: Date.now() + 1,
             status: "done",
-            metadata: { demoApplicationCard: result.applicationCard },
           },
         ]);
-        trackEvent("capability_select", {
-          tenantId: tenant.id,
-          userId: tenant.defaultUser.id,
-          capabilityId: "industry_research",
-          industryId: result.context.industryId,
-          contextId: result.context.id,
-        });
-        trackEvent("question_submit", {
-          tenantId: tenant.id,
-          userId: tenant.defaultUser.id,
-          capabilityId: "industry_research",
-          industryId: result.context.industryId,
-          contextId: result.context.id,
-        });
-        trackEvent("application_card_view", {
-          tenantId: tenant.id,
-          userId: tenant.defaultUser.id,
-          capabilityId: "industry_research",
-          industryId: result.context.industryId,
-          contextId: result.context.id,
-        });
+        void industryResearchApi
+          .analyze(question)
+          .then((result) => {
+            const contextId = `ctx_robot_${Date.now()}`;
+            saveResearchContext({
+              id: contextId,
+              tenantId: tenant.id,
+              userId: tenant.defaultUser.id,
+              capabilityId: "industry_research",
+              industryId: "robot",
+              industryName: result.industry_name,
+              analysisType: "live_kimi_research",
+              query: question,
+              createdAt: result.generated_at,
+              liveResult: result,
+            });
+            const sourceList = result.sources
+              .map(
+                (source) =>
+                  `[${source.index}] [${source.title}](${source.url})${
+                    source.date ? `（${source.date}）` : ""
+                  }`,
+              )
+              .join("\n");
+            const snapshot = chatStore.getSnapshot(sessionKey).messages;
+            chatStore.setMessages(
+              sessionKey,
+              snapshot.map((message) =>
+                message.id === assistantId
+                  ? {
+                      ...message,
+                      content: `${result.executive_summary}\n\n### 数据来源\n${sourceList}`,
+                      metadata: {
+                        demoApplicationCard: {
+                          applicationId: "industry_research",
+                          title: "产业智能研究",
+                          subtitle: `${result.industry_name} · Kimi 实时分析`,
+                          industryName: result.industry_name,
+                          tags: ["真实公开数据", "产业链", "重点企业"],
+                          metrics: [
+                            {
+                              label: "重点企业",
+                              value: result.key_companies.length,
+                            },
+                            { label: "风险事项", value: result.risks.length },
+                            {
+                              label: "公开来源",
+                              value: result.sources.length,
+                            },
+                          ],
+                          contextId,
+                          actionText: "进入产业研究驾驶舱",
+                          live: true,
+                          model: result.model,
+                          sources: result.sources,
+                        },
+                      },
+                    }
+                  : message,
+              ),
+            );
+            for (const eventName of [
+              "capability_select",
+              "question_submit",
+              "application_card_view",
+            ]) {
+              trackEvent(eventName, {
+                tenantId: tenant.id,
+                userId: tenant.defaultUser.id,
+                capabilityId: "industry_research",
+                industryId: "robot",
+                contextId,
+              });
+            }
+          })
+          .catch((error: unknown) => {
+            const snapshot = chatStore.getSnapshot(sessionKey).messages;
+            chatStore.setMessages(
+              sessionKey,
+              snapshot.map((message) =>
+                message.id === assistantId
+                  ? {
+                      ...message,
+                      content: `实时产业研究失败：${
+                        error instanceof Error ? error.message : "未知错误"
+                      }`,
+                    }
+                  : message,
+              ),
+            );
+          });
         return;
       }
       if (interceptUserMessage(text)) {
@@ -1375,7 +1451,7 @@ function ChatPageInner() {
               />
             )}
             <div className={styles.chatContent}>
-              {!agentChatReady || noAgents ? (
+              {(!agentChatReady || noAgents) && !hasDemoMessages ? (
                 <AgentNotReadyScreen
                   agent={activeAgent}
                   noAgents={noAgents}
@@ -1661,7 +1737,7 @@ function ChatPageInner() {
               onNewChat={handleNewChat}
               isStreaming={isStreaming}
               isTeam={isTeamChat}
-              disabled={!agentChatReady || noAgents || memoryMaintBlocking}
+              disabled={memoryMaintBlocking}
               initialText={prefillInputRef.current}
               onComposerCleared={() => {
                 prefillInputRef.current = "";

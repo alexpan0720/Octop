@@ -1,0 +1,1961 @@
+<header>
+  <div class="brand">
+    <h1>集团产业智能研究驾驶舱</h1>
+    <p>产业格局、重点企业、风险传导与政策机会的一体化决策沙盘</p>
+  </div>
+  <span class="badge" id="researchBadge">演示环境 · Mock 数据</span>
+  <div class="picker">
+    <select class="sel" id="chainSel">
+      <optgroup label="新能源（6）">
+        <option value="lithium" selected="">锂电池产业链</option>
+        <option value="pv">光伏产业链</option>
+        <option value="wind">风电产业链</option>
+        <option value="ess">储能产业链</option>
+        <option value="h2">氢能与燃料电池</option>
+        <option value="ev">新能源汽车产业链</option>
+      </optgroup>
+      <optgroup label="高端制造（6）">
+        <option value="ic">集成电路产业链</option>
+        <option value="robot">人形机器人产业链</option>
+        <option value="uam">低空经济产业链</option>
+        <option value="space">商业航天产业链</option>
+        <option value="panel">显示面板产业链</option>
+        <option value="aic">AI 算力产业链</option>
+      </optgroup>
+      <optgroup label="医药健康（2）">
+        <option value="pharma">创新药产业链</option>
+        <option value="meddev">医疗器械产业链</option>
+      </optgroup>
+      <optgroup label="大消费（5）">
+        <option value="food">食品饮料产业链</option>
+        <option value="pig">生猪养殖产业链</option>
+        <option value="textile">纺织服装产业链</option>
+        <option value="ce">消费电子产业链</option>
+        <option value="appliance">家用电器产业链</option>
+      </optgroup>
+      <optgroup label="周期资源（5）">
+        <option value="steel">钢铁产业链</option>
+        <option value="nonfer">有色金属产业链</option>
+        <option value="petro">石油化工产业链</option>
+        <option value="cement">水泥建材产业链</option>
+        <option value="machinery">工程机械产业链</option>
+      </optgroup>
+      <optgroup label="现代服务（1）">
+        <option value="logistics">现代物流产业链</option>
+      </optgroup>
+    </select>
+    <details class="data-tools">
+      <summary>数据维护</summary>
+      <div class="data-menu">
+        <button class="btn pri" id="btnNew">＋ 新建产业链</button>
+        <button class="btn" id="btnEdit">编辑</button>
+        <button class="btn" id="btnImport">导入 JSON</button>
+        <button class="btn" id="btnExport">导出 JSON</button>
+        <button class="btn danger" id="btnDel">删除</button>
+      </div>
+    </details>
+    <input type="file" id="fileIn" accept=".json" hidden="" />
+  </div>
+</header>
+
+<div class="kpis" id="kpis">
+  <div class="kpi">
+    <div class="k">产业链规模</div>
+    <div class="v">4.2 万亿元</div>
+  </div>
+  <div class="kpi">
+    <div class="k">图谱环节</div>
+    <div class="v">14<small>个</small></div>
+  </div>
+  <div class="kpi">
+    <div class="k">关联关系</div>
+    <div class="v">14<small>条</small></div>
+  </div>
+  <div class="kpi">
+    <div class="k">接入数据源</div>
+    <div class="v">8<small>类</small></div>
+  </div>
+  <div class="kpi">
+    <div class="k">平均景气指数</div>
+    <div class="v">54</div>
+  </div>
+  <div class="kpi">
+    <div class="k">周期判断</div>
+    <div class="v">强周期</div>
+  </div>
+</div>
+
+<nav class="journeybar" aria-label="建议演示路径">
+  <div class="journey-copy">
+    <b>建议演示路径</b><span>从全景判断到决策动作，约 5 分钟</span>
+  </div>
+  <button class="journey-step on" data-demo-view="graph">
+    <i>1</i><span>产业全景<small>看格局与景气</small></span>
+  </button>
+  <button class="journey-step" data-demo-view="analysis">
+    <i>2</i><span>企业筛选<small>找龙头与机会</small></span>
+  </button>
+  <button class="journey-step" data-demo-view="shock">
+    <i>3</i><span>风险推演<small>算影响与敞口</small></span>
+  </button>
+  <button class="journey-step" data-demo-view="policy">
+    <i>4</i><span>政策机会<small>落项目与动作</small></span>
+  </button>
+</nav>
+
+<nav class="menubar" id="menubar">
+  <button class="mtab on" data-v="graph">产业链图谱</button>
+  <button class="mtab" data-v="companies">
+    企业库 <small id="cCount">0</small>
+  </button>
+  <button class="mtab" data-v="analysis">企业分析</button>
+  <button class="mtab" data-v="compare">企业对比</button>
+  <button class="mtab" data-v="map">区域分布</button>
+  <button class="mtab" data-v="firm">企业关系 · 资金链 · 风险</button>
+  <button class="mtab" data-v="shock">上游冲击传导分析</button>
+  <button class="mtab" data-v="sw">行业分析 · 多分类</button>
+  <button class="mtab" data-v="macro">宏观经济 · 产业挖掘</button>
+  <button class="mtab" data-v="policy">政府政策指导分析</button>
+</nav>
+
+<main>
+  <section class="panel">
+    <h2>
+      <span class="dot"></span><span id="leftTitle">数据源 · Data Sources</span
+      ><span class="sub" id="srcSub">8 个源 · 覆盖 14 个环节</span>
+    </h2>
+    <div class="scroll" id="sources">
+      <div class="grp">行业数据</div>
+      <div class="src" data-s="smm">
+        <div class="top">
+          <span class="nm">SMM 大宗有色</span><span class="tag">周度</span>
+        </div>
+        <div class="meta">
+          现货价 / 社会库存 / 开工率<br />覆盖环节：锂资源、正极材料、负极材料
+          等 4 个
+        </div>
+        <div class="bar"><i style="width: 40%"></i></div>
+      </div>
+      <div class="src" data-s="ggii">
+        <div class="top">
+          <span class="nm">GGII 高工产研</span><span class="tag">月度</span>
+        </div>
+        <div class="meta">
+          出货量 / 装机量 / 产能利用率<br />覆盖环节：正极材料、隔膜、电芯制造
+          等 6 个
+        </div>
+        <div class="bar"><i style="width: 60%"></i></div>
+      </div>
+      <div class="src" data-s="caam">
+        <div class="top">
+          <span class="nm">中国汽车工业协会</span><span class="tag">月度</span>
+        </div>
+        <div class="meta">
+          产销量 / 渗透率 / 库存系数<br />覆盖环节：新能源汽车
+        </div>
+        <div class="bar"><i style="width: 10%"></i></div>
+      </div>
+      <div class="grp">市场行情</div>
+      <div class="src" data-s="gfex">
+        <div class="top">
+          <span class="nm">期货交易所行情</span><span class="tag">日度</span>
+        </div>
+        <div class="meta">期货价格 / 仓单 / 持仓量<br />覆盖环节：锂资源</div>
+        <div class="bar"><i style="width: 10%"></i></div>
+      </div>
+      <div class="grp">官方统计</div>
+      <div class="src" data-s="customs">
+        <div class="top">
+          <span class="nm">海关总署</span><span class="tag">月度</span>
+        </div>
+        <div class="meta">
+          进出口量额 / 均价 / 国别结构<br />覆盖环节：锂资源、梯次利用回收
+        </div>
+        <div class="bar"><i style="width: 20%"></i></div>
+      </div>
+      <div class="src" data-s="nbsc">
+        <div class="top">
+          <span class="nm">国家统计局</span><span class="tag">月度</span>
+        </div>
+        <div class="meta">
+          产量 / 增加值 / PPI / 固定资产投资<br />覆盖环节：锂电设备、新能源汽车、消费电子
+          等 4 个
+        </div>
+        <div class="bar"><i style="width: 40%"></i></div>
+      </div>
+      <div class="grp">企业财务</div>
+      <div class="src" data-s="wind">
+        <div class="top">
+          <span class="nm">Wind / 巨潮财报</span><span class="tag">季度</span>
+        </div>
+        <div class="meta">
+          营收 / 毛利率 / 在建工程 / 产能<br />覆盖环节：正极材料、负极材料、电解液
+          等 9 个
+        </div>
+        <div class="bar"><i style="width: 90%"></i></div>
+      </div>
+      <div class="grp">政策口径</div>
+      <div class="src" data-s="nea">
+        <div class="top">
+          <span class="nm">能源局 / 工信部</span><span class="tag">不定期</span>
+        </div>
+        <div class="meta">
+          装机核准 / 产业规划 / 产能置换<br />覆盖环节：储能系统
+        </div>
+        <div class="bar"><i style="width: 10%"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel stage">
+    <h2>
+      <span class="dot"></span
+      ><span id="stageTitle">锂电池产业链 · 议价能力视图</span>
+      <span class="sub" id="stageSub"
+        >点击节点查看详情 · 悬停查看上下游关联</span
+      >
+    </h2>
+
+    <!-- 视图 1：图谱 -->
+    <div class="view on" id="viewGraph">
+      <svg
+        id="graph"
+        preserveAspectRatio="xMidYMid meet"
+        viewBox="0 0 1240 700"
+      >
+        <defs>
+          <lineargradient id="gLink" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#c3cede"></stop>
+            <stop offset="1" stop-color="#b9c6da"></stop>
+          </lineargradient>
+          <lineargradient id="gHot" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#2563eb"></stop>
+            <stop offset="1" stop-color="#7c3aed"></stop>
+          </lineargradient>
+          <marker
+            id="ar"
+            viewBox="0 0 10 10"
+            refX="9"
+            refY="5"
+            markerWidth="5"
+            markerHeight="5"
+            orient="auto-start-reverse"
+          >
+            <path d="M0,0 L10,5 L0,10 z" fill="#8ea1bf"></path>
+          </marker>
+          <filter id="sh" x="-25%" y="-25%" width="150%" height="150%">
+            <fedropshadow
+              dx="0"
+              dy="2"
+              stdDeviation="3"
+              flood-color="#1e293b"
+              flood-opacity="0.13"
+            ></fedropshadow>
+          </filter>
+        </defs>
+        <rect
+          x="79"
+          y="64"
+          width="234"
+          height="604"
+          rx="18"
+          fill="#f8fafd"
+          stroke="#e6ecf6"
+        ></rect>
+        <text
+          x="196"
+          y="38"
+          text-anchor="middle"
+          font-size="13.5"
+          font-weight="700"
+          fill="#1e293b"
+        >
+          上游 · 资源与材料
+        </text>
+        <text
+          x="196"
+          y="56"
+          text-anchor="middle"
+          font-size="10.5"
+          fill="#7b8aa6"
+        >
+          资源禀赋决定成本地板
+        </text>
+        <rect
+          x="503"
+          y="64"
+          width="234"
+          height="604"
+          rx="18"
+          fill="#f8fafd"
+          stroke="#e6ecf6"
+        ></rect>
+        <text
+          x="620"
+          y="38"
+          text-anchor="middle"
+          font-size="13.5"
+          font-weight="700"
+          fill="#1e293b"
+        >
+          中游 · 电芯与系统
+        </text>
+        <text
+          x="620"
+          y="56"
+          text-anchor="middle"
+          font-size="10.5"
+          fill="#7b8aa6"
+        >
+          规模与良率决定护城河
+        </text>
+        <rect
+          x="927"
+          y="64"
+          width="234"
+          height="604"
+          rx="18"
+          fill="#f8fafd"
+          stroke="#e6ecf6"
+        ></rect>
+        <text
+          x="1044"
+          y="38"
+          text-anchor="middle"
+          font-size="13.5"
+          font-weight="700"
+          fill="#1e293b"
+        >
+          下游 · 应用与回收
+        </text>
+        <text
+          x="1044"
+          y="56"
+          text-anchor="middle"
+          font-size="10.5"
+          fill="#7b8aa6"
+        >
+          需求景气反向传导订单
+        </text>
+        <g>
+          <path
+            d="M291,129 C400.5238095238095,129 411.4761904761905,179 521,179"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M291,129 C400.5238095238095,129 411.4761904761905,179 521,179"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="406"
+            y="148"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            原材料占电芯成本约40%
+          </text>
+          <path
+            d="M291,229 C400.5238095238095,229 411.4761904761905,179 521,179"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M291,229 C400.5238095238095,229 411.4761904761905,179 521,179"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="406"
+            y="198"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            正极成本传导
+          </text>
+          <path
+            d="M291,329 C400.5238095238095,329 411.4761904761905,179 521,179"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M291,329 C400.5238095238095,329 411.4761904761905,179 521,179"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="406"
+            y="248"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            负极成本传导
+          </text>
+          <path
+            d="M291,429 C400.5238095238095,429 411.4761904761905,179 521,179"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M291,429 C400.5238095238095,429 411.4761904761905,179 521,179"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="406"
+            y="298"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            电解液成本传导
+          </text>
+          <path
+            d="M291,529 C400.5238095238095,529 411.4761904761905,179 521,179"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M291,529 C400.5238095238095,529 411.4761904761905,179 521,179"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="406"
+            y="348"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            隔膜成本传导
+          </text>
+          <path
+            d="M715,479 C785,479 451,179 521,179"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M715,479 C785,479 451,179 521,179"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="618"
+            y="323"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            扩产订单领先
+          </text>
+          <path
+            d="M715,379 C785,379 451,279 521,279"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M715,379 C785,379 451,279 521,279"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="618"
+            y="323"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            电控系统集成
+          </text>
+          <path
+            d="M715,179 C785,179 451,279 521,279"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M715,179 C785,179 451,279 521,279"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="618"
+            y="223"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            电芯→模组
+          </text>
+          <path
+            d="M715,179 C824.5238095238095,179 835.4761904761905,129 945,129"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M715,179 C824.5238095238095,179 835.4761904761905,129 945,129"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="830"
+            y="148"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            动力电池配套
+          </text>
+          <path
+            d="M715,279 C824.5238095238095,279 835.4761904761905,129 945,129"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M715,279 C824.5238095238095,279 835.4761904761905,129 945,129"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="830"
+            y="198"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            整包交付
+          </text>
+          <path
+            d="M715,279 C824.5238095238095,279 835.4761904761905,229 945,229"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M715,279 C824.5238095238095,279 835.4761904761905,229 945,229"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="830"
+            y="248"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            储能集成
+          </text>
+          <path
+            d="M715,179 C824.5238095238095,179 835.4761904761905,329 945,329"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M715,179 C824.5238095238095,179 835.4761904761905,329 945,329"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="830"
+            y="248"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            小型锂电
+          </text>
+          <path
+            d="M715,179 C824.5238095238095,179 835.4761904761905,429 945,429"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M715,179 C824.5238095238095,179 835.4761904761905,429 945,429"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="830"
+            y="298"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            小动力场景
+          </text>
+          <path
+            d="M715,279 C824.5238095238095,279 835.4761904761905,529 945,529"
+            class="link"
+            stroke-width="1.4"
+            stroke="url(#gLink)"
+          ></path>
+          <path
+            d="M715,279 C824.5238095238095,279 835.4761904761905,529 945,529"
+            class="flow"
+            stroke-width="1.7"
+            stroke="rgba(37,99,235,.45)"
+          ></path>
+          <text
+            x="830"
+            y="398"
+            text-anchor="middle"
+            class="lnk-lab"
+            style="opacity: 0"
+          >
+            退役电池回流
+          </text>
+        </g>
+        <g>
+          <g class="node">
+            <rect
+              x="105"
+              y="94"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="120" y="125" font-size="19">⛏️</text>
+            <text
+              x="149"
+              y="121"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              锂资源
+            </text>
+            <text x="149" y="137" font-size="10" fill="#7b8aa6">
+              天齐锂业 等
+            </text>
+            <rect
+              x="120"
+              y="149"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="120"
+              y="149"
+              width="139.84"
+              height="5"
+              rx="2.5"
+              fill="rgb(219,70,25)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="272"
+              y="146"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(219,70,25)"
+            >
+              92
+            </text>
+          </g>
+          <g class="node">
+            <rect
+              x="105"
+              y="194"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="120" y="225" font-size="19">🧪</text>
+            <text
+              x="149"
+              y="221"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              正极材料
+            </text>
+            <text x="149" y="237" font-size="10" fill="#7b8aa6">
+              德方纳米 等
+            </text>
+            <rect
+              x="120"
+              y="249"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="120"
+              y="249"
+              width="94.24"
+              height="5"
+              rx="2.5"
+              fill="rgb(26,147,95)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="272"
+              y="246"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(26,147,95)"
+            >
+              62
+            </text>
+          </g>
+          <g class="node">
+            <rect
+              x="105"
+              y="294"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="120" y="325" font-size="19">🪨</text>
+            <text
+              x="149"
+              y="321"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              负极材料
+            </text>
+            <text x="149" y="337" font-size="10" fill="#7b8aa6">贝特瑞 等</text>
+            <rect
+              x="120"
+              y="349"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="120"
+              y="349"
+              width="72.96"
+              height="5"
+              rx="2.5"
+              fill="rgb(6,148,140)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="272"
+              y="346"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(6,148,140)"
+            >
+              48
+            </text>
+          </g>
+          <g class="node">
+            <rect
+              x="105"
+              y="394"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="120" y="425" font-size="19">💧</text>
+            <text
+              x="149"
+              y="421"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              电解液
+            </text>
+            <text x="149" y="437" font-size="10" fill="#7b8aa6">
+              天赐材料 等
+            </text>
+            <rect
+              x="120"
+              y="449"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="120"
+              y="449"
+              width="83.60000000000001"
+              height="5"
+              rx="2.5"
+              fill="rgb(6,149,120)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="272"
+              y="446"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(6,149,120)"
+            >
+              55
+            </text>
+          </g>
+          <g class="node">
+            <rect
+              x="105"
+              y="494"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="120" y="525" font-size="19">🧵</text>
+            <text
+              x="149"
+              y="521"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              隔膜
+            </text>
+            <text x="149" y="537" font-size="10" fill="#7b8aa6">
+              恩捷股份 等
+            </text>
+            <rect
+              x="120"
+              y="549"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="120"
+              y="549"
+              width="106.39999999999999"
+              height="5"
+              rx="2.5"
+              fill="rgb(111,135,56)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="272"
+              y="546"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(111,135,56)"
+            >
+              70
+            </text>
+          </g>
+          <g class="node">
+            <rect
+              x="529"
+              y="144"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="544" y="175" font-size="19">🔋</text>
+            <text
+              x="573"
+              y="171"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              电芯制造
+            </text>
+            <text x="573" y="187" font-size="10" fill="#7b8aa6">
+              宁德时代 等
+            </text>
+            <rect
+              x="544"
+              y="199"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="544"
+              y="199"
+              width="118.56"
+              height="5"
+              rx="2.5"
+              fill="rgb(196,122,16)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="696"
+              y="196"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(196,122,16)"
+            >
+              78
+            </text>
+          </g>
+          <g class="node">
+            <rect
+              x="529"
+              y="244"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="544" y="275" font-size="19">📦</text>
+            <text
+              x="573"
+              y="271"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              模组与PACK
+            </text>
+            <text x="573" y="287" font-size="10" fill="#7b8aa6">
+              宁德时代 等
+            </text>
+            <rect
+              x="544"
+              y="299"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="544"
+              y="299"
+              width="76"
+              height="5"
+              rx="2.5"
+              fill="rgb(6,148,134)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="696"
+              y="296"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(6,148,134)"
+            >
+              50
+            </text>
+          </g>
+          <g class="node">
+            <rect
+              x="529"
+              y="344"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="544" y="375" font-size="19">🎛️</text>
+            <text
+              x="573"
+              y="371"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              BMS与电控
+            </text>
+            <text x="573" y="387" font-size="10" fill="#7b8aa6">
+              华霆动力 等
+            </text>
+            <rect
+              x="544"
+              y="399"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="544"
+              y="399"
+              width="100.32000000000001"
+              height="5"
+              rx="2.5"
+              fill="rgb(69,141,75)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="696"
+              y="396"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(69,141,75)"
+            >
+              66
+            </text>
+          </g>
+          <g class="node">
+            <rect
+              x="529"
+              y="444"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="544" y="475" font-size="19">⚙️</text>
+            <text
+              x="573"
+              y="471"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              锂电设备
+            </text>
+            <text x="573" y="487" font-size="10" fill="#7b8aa6">
+              先导智能 等
+            </text>
+            <rect
+              x="544"
+              y="499"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="544"
+              y="499"
+              width="88.16"
+              height="5"
+              rx="2.5"
+              fill="rgb(5,150,111)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="696"
+              y="496"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(5,150,111)"
+            >
+              58
+            </text>
+          </g>
+          <g class="node">
+            <rect
+              x="953"
+              y="94"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="968" y="125" font-size="19">🚗</text>
+            <text
+              x="997"
+              y="121"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              新能源汽车
+            </text>
+            <text x="997" y="137" font-size="10" fill="#7b8aa6">比亚迪 等</text>
+            <rect
+              x="968"
+              y="149"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="968"
+              y="149"
+              width="109.44"
+              height="5"
+              rx="2.5"
+              fill="rgb(132,131,46)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="1120"
+              y="146"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(132,131,46)"
+            >
+              72
+            </text>
+          </g>
+          <g class="node">
+            <rect
+              x="953"
+              y="194"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="968" y="225" font-size="19">🔌</text>
+            <text
+              x="997"
+              y="221"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              储能系统
+            </text>
+            <text x="997" y="237" font-size="10" fill="#7b8aa6">
+              阳光电源 等
+            </text>
+            <rect
+              x="968"
+              y="249"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="968"
+              y="249"
+              width="83.60000000000001"
+              height="5"
+              rx="2.5"
+              fill="rgb(6,149,120)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="1120"
+              y="246"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(6,149,120)"
+            >
+              55
+            </text>
+          </g>
+          <g class="node">
+            <rect
+              x="953"
+              y="294"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="968" y="325" font-size="19">📱</text>
+            <text
+              x="997"
+              y="321"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              消费电子
+            </text>
+            <text x="997" y="337" font-size="10" fill="#7b8aa6">苹果 等</text>
+            <rect
+              x="968"
+              y="349"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="968"
+              y="349"
+              width="91.2"
+              height="5"
+              rx="2.5"
+              fill="rgb(5,150,105)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="1120"
+              y="346"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(5,150,105)"
+            >
+              60
+            </text>
+          </g>
+          <g class="node">
+            <rect
+              x="953"
+              y="394"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="968" y="425" font-size="19">🛵</text>
+            <text
+              x="997"
+              y="421"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              两轮车与工具
+            </text>
+            <text x="997" y="437" font-size="10" fill="#7b8aa6">雅迪 等</text>
+            <rect
+              x="968"
+              y="449"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="968"
+              y="449"
+              width="60.800000000000004"
+              height="5"
+              rx="2.5"
+              fill="rgb(7,146,163)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="1120"
+              y="446"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(7,146,163)"
+            >
+              40
+            </text>
+          </g>
+          <g class="node">
+            <rect
+              x="953"
+              y="494"
+              width="182"
+              height="70"
+              rx="12"
+              class="card"
+              fill="#fff"
+              stroke="#dbe3ef"
+              stroke-width="1.2"
+              filter="url(#sh)"
+            ></rect>
+            <text x="968" y="525" font-size="19">♻️</text>
+            <text
+              x="997"
+              y="521"
+              font-size="13"
+              font-weight="600"
+              fill="#16203a"
+            >
+              梯次利用回收
+            </text>
+            <text x="997" y="537" font-size="10" fill="#7b8aa6">格林美 等</text>
+            <rect
+              x="968"
+              y="549"
+              width="152"
+              height="5"
+              rx="2.5"
+              fill="#eef2f8"
+            ></rect>
+            <rect
+              x="968"
+              y="549"
+              width="53.199999999999996"
+              height="5"
+              rx="2.5"
+              fill="rgb(8,145,178)"
+              style="
+                transition:
+                  width 0.45s,
+                  fill 0.35s;
+              "
+            ></rect>
+            <text
+              x="1120"
+              y="546"
+              text-anchor="end"
+              font-size="10.5"
+              font-weight="700"
+              fill="rgb(8,145,178)"
+            >
+              35
+            </text>
+          </g>
+        </g>
+      </svg>
+      <div class="legend">
+        <span>指标强度</span>
+        <span class="scale">低<span class="grad"></span>高</span>
+        <span id="legendDim"
+          >｜当前指标：<b style="color: #1e293b">议价能力</b
+          >　环节对上下游的价格谈判地位，值越高越强势。</span
+        >
+        <span style="margin-left: auto">连线方向 = 物料 / 价值流转方向</span>
+      </div>
+    </div>
+
+    <!-- 视图 2：企业库 -->
+    <div class="view" id="viewCompanies">
+      <div class="toolbar">
+        <span class="lb">层级</span>
+        <select id="fLayer">
+          <option value="">全部</option>
+          <option value="u">上游</option>
+          <option value="m">中游</option>
+          <option value="d">下游</option>
+        </select>
+        <span class="lb">环节</span>
+        <select id="fNode">
+          <option value="">全部环节</option>
+        </select>
+        <input
+          id="fSearch"
+          placeholder="搜索企业名称 / 标签"
+          style="width: 170px"
+        />
+        <span class="sp"></span>
+        <span class="lb" id="cStat"></span>
+        <button class="btn pri" id="btnNewCo">＋ 新增企业</button>
+        <button class="btn" id="btnExportCo">导出 CSV</button>
+      </div>
+      <div class="twrap"><table class="tbl" id="coTable"></table></div>
+    </div>
+
+    <!-- 视图 3：企业分析 -->
+    <div class="view" id="viewAnalysis">
+      <div class="toolbar">
+        <span class="lb">X 轴</span
+        ><select id="axX"></select>
+        <span class="lb">Y 轴</span
+        ><select id="axY"></select>
+        <span class="lb">气泡大小</span
+        ><select id="axS"></select>
+        <span class="lb">层级</span>
+        <select id="aLayer">
+          <option value="">全部</option>
+          <option value="u">上游</option>
+          <option value="m">中游</option>
+          <option value="d">下游</option>
+        </select>
+        <span class="sp"></span>
+        <span class="lgd" id="aLegend"></span>
+      </div>
+      <div class="chartbox" id="anaBox">
+        <svg id="chartAna" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="tip" id="anaTip"></div>
+      </div>
+    </div>
+
+    <!-- 视图 4：企业对比 -->
+    <div class="view" id="viewCompare">
+      <div class="toolbar">
+        <span class="lb">对比企业（在左侧选择，最多 6 家）</span>
+        <span class="sp"></span>
+        <button class="btn" id="btnClearCmp">清空</button>
+      </div>
+      <div class="chartbox" id="cmpBox">
+        <svg id="chartCmp" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+    </div>
+
+    <!-- 视图 5：区域分布 -->
+    <div class="view" id="viewMap">
+      <div class="toolbar">
+        <span class="lb">着色</span>
+        <select id="mMode">
+          <option value="cnt">当前产业链企业数量</option>
+          <option value="fit">产业链地区适配度</option>
+          <option value="all">全部产业企业总数</option>
+          <option value="eco">地区经济指标</option>
+        </select>
+        <select id="mChain"></select>
+        <select id="mEco" style="display: none"></select>
+        <span class="lb">层级</span>
+        <select id="mLayer">
+          <option value="">全部</option>
+          <option value="u">上游</option>
+          <option value="m">中游</option>
+          <option value="d">下游</option>
+        </select>
+        <span class="sp"></span>
+        <span class="scale"
+          >低<span class="grad" style="width: 110px"></span>高</span
+        >
+        <span class="lb" id="mStat"></span>
+      </div>
+      <div class="chartbox" id="mapBox">
+        <svg id="chartMap" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="tip" id="mapTip"></div>
+      </div>
+    </div>
+
+    <!-- 视图 6：企业关系 / 资金链 / 风险 -->
+    <div class="view" id="viewFirm">
+      <div class="toolbar">
+        <span class="lb">焦点企业</span>
+        <select id="firmSel" style="min-width: 190px"></select>
+        <span class="lb">展开层级</span>
+        <select id="firmDepth">
+          <option value="1">直接上下游</option>
+          <option value="2" selected="">上下游各 2 级</option>
+        </select>
+        <span class="lb">显示</span>
+        <select id="firmFlow">
+          <option value="both" selected="">物流 + 资金流</option>
+          <option value="goods">仅物流</option>
+          <option value="cash">仅资金流</option>
+        </select>
+        <span class="sp"></span>
+        <span class="lgd" id="firmLegend"></span>
+      </div>
+      <div class="chartbox" id="firmBox">
+        <svg id="chartFirm" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="tip" id="firmTip"></div>
+      </div>
+    </div>
+
+    <!-- 视图 7：上游冲击传导 -->
+    <div class="view" id="viewShock">
+      <div class="toolbar">
+        <span class="lb">冲击源环节</span>
+        <select id="shkSrc" style="min-width: 170px"></select>
+        <span class="lb">风险类型</span>
+        <select id="shkType" style="min-width: 130px"></select>
+        <span class="lb">冲击强度</span>
+        <input
+          type="range"
+          id="shkPct"
+          min="10"
+          max="100"
+          step="5"
+          value="50"
+          style="width: 120px"
+        />
+        <b id="shkPctV" style="color: var(--accent)">50%</b>
+        <span class="sp"></span>
+        <span class="lgd" id="shkLegend"></span>
+      </div>
+      <div class="chartbox" id="shkBox">
+        <svg id="chartShk" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="tip" id="shkTip"></div>
+      </div>
+    </div>
+
+    <!-- 视图 8：行业分析（申万 / 中信 / 证监会 / 赛道概念） -->
+    <div class="view" id="viewSw">
+      <div class="toolbar">
+        <span class="lb">分类体系</span>
+        <select id="swSys">
+          <option value="sw">申万行业</option>
+          <option value="citic">中信行业</option>
+          <option value="csic">证监会行业（国标）</option>
+          <option value="theme">赛道 / 概念板块</option>
+        </select>
+        <span class="lb">层级</span>
+        <select id="swLvl">
+          <option value="1">一级行业</option>
+          <option value="2">二级行业</option>
+          <option value="3">三级行业</option>
+        </select>
+        <span class="lb">分析图</span>
+        <select id="swMode">
+          <option value="flow">行业间资金流向</option>
+          <option value="rev">营收结构与占比</option>
+          <option value="cycle">景气与周期定位</option>
+          <option value="score">多因子评分榜</option>
+          <option value="supply">供需与产能周期</option>
+          <option value="profit">利润池与议价力</option>
+        </select>
+        <span class="sp"></span>
+        <span class="lgd" id="swLegend"></span>
+      </div>
+      <div class="chartbox" id="swBox">
+        <svg id="chartSw" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="tip" id="swTip"></div>
+      </div>
+    </div>
+
+    <!-- 视图 9：宏观经济 · 新型产业与企业挖掘 · 投资方向 -->
+    <div class="view" id="viewMacro">
+      <div class="toolbar">
+        <span class="lb">分析图</span>
+        <select id="mcMode" style="min-width: 210px">
+          <option value="dash">宏观景气仪表盘</option>
+          <option value="clock">经济周期定位（时钟 / 货币信用 / 库存）</option>
+          <option value="beta">宏观 → 产业链传导敏感度</option>
+          <option value="mine">新型产业挖掘（金融库）</option>
+          <option value="firm">新型企业挖掘（金融库）</option>
+          <option value="guide">投资方向与配置建议</option>
+        </select>
+        <span class="lb" id="mcScopeLb">挖掘口径</span>
+        <select id="mcScope">
+          <option value="theme">赛道 / 概念板块</option>
+          <option value="sw2">申万二级行业</option>
+          <option value="sw3">申万三级行业</option>
+        </select>
+        <span class="sp"></span>
+        <span class="lgd" id="mcLegend"></span>
+      </div>
+      <div class="chartbox" id="mcBox">
+        <svg id="chartMc" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="tip" id="mcTip"></div>
+      </div>
+    </div>
+
+    <!-- 视图 10：政府政策指导分析 -->
+    <div class="view" id="viewPolicy">
+      <div class="toolbar">
+        <span class="lb">分析图</span>
+        <select id="pvMode" style="min-width: 236px">
+          <option value="dash">政策总览仪表盘</option>
+          <option value="time">政策脉络时间轴</option>
+          <option value="matrix">中央 × 地方 政策矩阵</option>
+          <option value="chain">产业链政策支持度</option>
+          <option value="trans">政策 → 产业传导路径</option>
+          <option value="region">地方落地与招商指引</option>
+          <option value="risk">政策风险与合规清单</option>
+        </select>
+        <span class="lb">政策层级</span>
+        <select id="pvLv">
+          <option value="">全部层级</option>
+          <option value="中央">中央</option>
+          <option value="部委">部委</option>
+          <option value="地方">地方</option>
+        </select>
+        <span class="lb">政策类型</span>
+        <select id="pvType">
+          <option value="">全部类型</option>
+        </select>
+        <span class="sp"></span>
+        <span class="lgd" id="pvLegend"></span>
+      </div>
+      <div class="chartbox" id="pvBox">
+        <svg id="chartPv" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="tip" id="pvTip"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>
+      <span class="dot" style="background: var(--accent2)"></span
+      ><span id="rightTitle">分析维度 · Dimensions</span>
+    </h2>
+    <div class="scroll" id="panelRight">
+      <div style="display: flex; flex-direction: column; gap: 8px">
+        <div class="dim-item on" data-d="power">
+          <div class="r1"><b>议价能力</b><span class="val">60</span></div>
+          <div class="desc">环节对上下游的价格谈判地位，值越高越强势。</div>
+          <div class="fx">0.40×CR5 + 0.35×资源稀缺性 + 0.25×库存水位</div>
+        </div>
+        <div class="dim-item" data-d="prosperity">
+          <div class="r1"><b>景气指数</b><span class="val">54</span></div>
+          <div class="desc">产量、开工率与订单同比合成，50 为荣枯分界线。</div>
+          <div class="fx">0.40×产量同比 + 0.30×开工率 + 0.30×订单同比</div>
+        </div>
+        <div class="dim-item" data-d="margin">
+          <div class="r1"><b>毛利率</b><span class="val">22%</span></div>
+          <div class="desc">环节内上市公司最新财报毛利率中位数。</div>
+          <div class="fx">中位数(毛利率)</div>
+        </div>
+        <div class="dim-item" data-d="cr5">
+          <div class="r1"><b>CR5 集中度</b><span class="val">61%</span></div>
+          <div class="desc">头部五家企业出货 / 营收份额，衡量格局稳定性。</div>
+          <div class="fx">Top5 份额 / 全市场</div>
+        </div>
+        <div class="dim-item" data-d="elasticity">
+          <div class="r1"><b>价格传导弹性</b><span class="val">48</span></div>
+          <div class="desc">上游涨价 10% 时本环节可向下游转嫁的比例。</div>
+          <div class="fx">Δ下游价格 / Δ上游成本</div>
+        </div>
+      </div>
+      <div class="card2">
+        <div class="sec-t">当前维度 · 议价能力 排名</div>
+        <div class="sec-t" style="color: #047857">强势 TOP3</div>
+        <div class="rank">
+          <div class="row">
+            <span class="pos">1</span><span class="nm">锂资源</span>
+            <span class="vv" style="color: rgb(219, 70, 25)">92</span>
+          </div>
+          <div class="row">
+            <span class="pos">2</span><span class="nm">电芯制造</span>
+            <span class="vv" style="color: rgb(196, 122, 16)">78</span>
+          </div>
+          <div class="row">
+            <span class="pos">3</span><span class="nm">新能源汽车</span>
+            <span class="vv" style="color: rgb(132, 131, 46)">72</span>
+          </div>
+        </div>
+        <div class="sec-t" style="color: #be123c">承压 BOTTOM3</div>
+        <div class="rank">
+          <div class="row">
+            <span class="pos">1</span><span class="nm">梯次利用回收</span>
+            <span class="vv" style="color: rgb(8, 145, 178)">35</span>
+          </div>
+          <div class="row">
+            <span class="pos">2</span><span class="nm">两轮车与工具</span>
+            <span class="vv" style="color: rgb(7, 146, 163)">40</span>
+          </div>
+          <div class="row">
+            <span class="pos">3</span><span class="nm">负极材料</span>
+            <span class="vv" style="color: rgb(6, 148, 140)">48</span>
+          </div>
+        </div>
+      </div>
+      <div class="card2">
+        <div class="sec-t">自动洞察 · Auto Insights</div>
+        <div class="insight">
+          <span class="ii">👑</span
+          ><span
+            ><b>话语权高地　</b><b>锂资源</b> 议价能力
+            92，为全链最强环节；成本波动主要由其向下游传导，定价权集中于此。</span
+          >
+        </div>
+        <div class="insight">
+          <span class="ii">🔥</span
+          ><span
+            ><b>需求景气极　</b><b>储能系统</b> 景气 88 领先全链，而
+            <b>锂电设备</b> 仅 30（低于荣枯线），需求分化明显。</span
+          >
+        </div>
+        <div class="insight">
+          <span class="ii">💰</span
+          ><span
+            ><b>利润分布　</b>毛利率最高为 <b>锂资源</b>（38%），最低为
+            <b>梯次利用回收</b>（10%）；<b>两轮车与工具</b> 传导弹性仅 22 且毛利
+            16%，处于成本挤压最严重位置。</span
+          >
+        </div>
+        <div class="insight">
+          <span class="ii">🏛️</span
+          ><span
+            ><b>竞争格局　</b><b>电芯制造</b> CR5 达 85%，格局稳定；<b
+              >梯次利用回收</b
+            >
+            仅 30%，分散竞争、价格战风险高。</span
+          >
+        </div>
+        <div class="insight">
+          <span class="ii">⚖️</span
+          ><span
+            ><b>利润归属判断　</b>上/中/下游平均议价 65 / 63 /
+            52，利润向<b>上游</b>倾斜；下游需通过长协与套保锁定成本。</span
+          >
+        </div>
+      </div>
+      <div id="detailSlot">
+        <div class="hint">
+          点击图谱中的任意环节<br />查看代表企业、全维度指标与数据来源
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span id="dataNotice"
+    ><b>数据说明</b>　页面内指标为演示用示例数据，口径与真实统计存在偏差。</span
+  >
+  <span
+    ><b>更新频率</b>　行情日度 / 行业周度 / 统计与财报月度、季度，融合后 T+1
+    刷新。</span
+  >
+  <span id="footUpdate">数据更新时间：2026-09-28　｜　当前共 25 条产业链</span>
+</footer>
+
+<!-- ================= 企业编辑 / 新增 ================= -->
+<div class="mask" id="cmask">
+  <div class="modal" style="width: min(760px, 94vw)">
+    <div class="mh">
+      <b id="cmTitle">编辑企业</b>
+      <span class="sub" id="cmSub"
+        >修改企业指标后，企业库、分析象限与对比视图同步更新</span
+      >
+      <button class="btn" id="cmClose" style="margin-left: auto">✕</button>
+    </div>
+    <div class="mb">
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px">
+        <div class="fld">
+          <label>企业名称</label
+          ><input class="inp" id="coName" placeholder="如：宁德时代" />
+        </div>
+        <div class="fld">
+          <label>所属环节</label
+          ><select class="inp" id="coNode"></select>
+        </div>
+        <div class="fld">
+          <label>所在省份</label
+          ><select class="inp" id="coProv"></select>
+        </div>
+      </div>
+      <div class="fld">
+        <label>核心指标</label>
+        <div class="m5" id="coMetrics"></div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+        <div class="fld">
+          <label>标签（顿号分隔，如：龙头、出海）</label
+          ><input class="inp" id="coTags" placeholder="龙头、专精特新" />
+        </div>
+        <div class="fld">
+          <label>证券代码 / 备注</label
+          ><input
+            class="inp"
+            id="coCode"
+            placeholder="如：300750.SZ，或 未上市"
+          />
+        </div>
+      </div>
+      <div class="fld">
+        <label>企业简介</label
+        ><textarea
+          class="inp"
+          id="coDesc"
+          rows="2"
+          placeholder="主营业务、竞争格局、上下游关系等"
+        ></textarea>
+      </div>
+    </div>
+    <div class="mf">
+      <span class="tip"
+        >修改仅保存在本地，可通过「导出 CSV」备份企业清单。</span
+      >
+      <button class="btn danger" id="cmDel">删除该企业</button>
+      <button class="btn" id="cmCancel">取消</button>
+      <button class="btn pri" id="cmSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 新建 / 编辑 产业链 ================= -->
+<div class="mask" id="mask">
+  <div class="modal">
+    <div class="mh">
+      <b id="mTitle">新建产业链</b>
+      <span class="sub" id="mSub"
+        >填写环节与指标，保存后自动接入图谱与全部分析维度</span
+      >
+      <button class="btn" id="mClose" style="margin-left: auto">✕</button>
+    </div>
+    <div class="mb">
+      <div class="row3">
+        <div class="fld">
+          <label>产业链名称</label
+          ><input class="inp" id="fName" placeholder="如：钠离子电池产业链" />
+        </div>
+        <div class="fld">
+          <label>产业规模</label
+          ><input class="inp" id="fScale" placeholder="如：0.6 万亿元" />
+        </div>
+        <div class="fld">
+          <label>周期判断</label
+          ><input class="inp" id="fCycle" placeholder="如：导入期" />
+        </div>
+      </div>
+      <div class="row3">
+        <div class="fld">
+          <label>上游名称</label
+          ><input class="inp" id="fL0" value="上游 · 原材料" />
+        </div>
+        <div class="fld">
+          <label>中游名称</label
+          ><input class="inp" id="fL1" value="中游 · 制造" />
+        </div>
+        <div class="fld">
+          <label>下游名称</label
+          ><input class="inp" id="fL2" value="下游 · 应用" />
+        </div>
+      </div>
+      <div class="fld">
+        <label
+          >环节列表（议价 0-100 / 景气 0-100 / 毛利率 0-60 / CR5 0-100 /
+          传导弹性 0-100）</label
+        >
+        <div
+          id="nodeForms"
+          style="display: flex; flex-direction: column; gap: 9px"
+        ></div>
+        <button
+          class="btn"
+          id="btnAddNode"
+          style="align-self: flex-start; margin-top: 6px"
+        >
+          ＋ 添加环节
+        </button>
+      </div>
+      <div class="fld">
+        <label>传导关系（留空则按上下游顺序自动连接）</label>
+        <div
+          id="linkForms"
+          style="display: flex; flex-direction: column; gap: 7px"
+        ></div>
+        <div style="display: flex; gap: 8px; margin-top: 6px">
+          <button class="btn" id="btnAddLink">＋ 添加关系</button>
+          <button class="btn" id="btnAutoLink">自动生成关系</button>
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <span class="tip"
+        >保存后写入浏览器本地存储，刷新不丢失；可导出 JSON 备份。</span
+      >
+      <button class="btn" id="mCancel">取消</button>
+      <button class="btn pri" id="mSave">保存并分析</button>
+    </div>
+  </div>
+</div>

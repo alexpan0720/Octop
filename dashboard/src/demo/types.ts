@@ -65,6 +65,7 @@ export interface ResearchContext {
   analysisType: string;
   query: string;
   createdAt: string;
+  liveResult?: import("../api/modules/industryResearch").LiveIndustryResearch;
 }
 
 export interface ApplicationCardData {
@@ -76,6 +77,15 @@ export interface ApplicationCardData {
   metrics: Array<{ label: string; value: string | number }>;
   contextId: string;
   actionText: string;
+  live?: boolean;
+  model?: string;
+  sources?: Array<{
+    index: number;
+    title: string;
+    url: string;
+    site: string;
+    date: string;
+  }>;
 }
 
 export interface TelemetryEvent {

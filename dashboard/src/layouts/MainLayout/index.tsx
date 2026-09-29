@@ -62,6 +62,9 @@ export default function MainLayout() {
   useDashboardPushToast();
   useKeyboardOffset();
   const isMinimalLayout = layoutMode === "minimal";
+  const isIndustryResearch = currentPath.startsWith(
+    "/applications/industry-research/",
+  );
   const isFullscreen =
     FULLSCREEN_PATHS.has(currentPath) ||
     [...FULLSCREEN_PATHS].some((p) => currentPath.startsWith(p + "/")) ||
@@ -123,6 +126,12 @@ export default function MainLayout() {
       setCollapsed(getSavedCollapsed());
     }
   }, [isMobile]);
+
+  // Give the dense decision cockpit enough horizontal room on common
+  // 1280×720 executive-demo displays. Users can still expand the rail.
+  useEffect(() => {
+    if (isIndustryResearch) setCollapsed(true);
+  }, [isIndustryResearch]);
 
   // On mobile, collapse sidebar when navigating to a new page
   useEffect(() => {
