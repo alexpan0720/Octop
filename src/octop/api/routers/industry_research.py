@@ -28,12 +28,16 @@ class IndustryResearchSource(BaseModel):
 class IndustryResearchResponse(BaseModel):
     industry_name: str
     executive_summary: str
+    key_findings: list[str] = Field(default_factory=list)
+    recommended_actions: list[str] = Field(default_factory=list)
     chain: dict[str, list[str]]
     key_companies: list[dict[str, Any]]
     risks: list[str]
     opportunities: list[str]
     data_as_of: str
     source_indexes_used: list[int] = Field(default_factory=list)
+    research_focus: str = "chain"
+    focus_title: str = "产业链全景"
     query: str
     model: str
     generated_at: str

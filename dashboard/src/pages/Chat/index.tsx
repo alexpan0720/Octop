@@ -54,7 +54,9 @@ import type { TokenUsage } from "../../api/types";
 import type { ChatAttachment } from "./hooks/useChat";
 import MessageList from "./components/MessageList";
 import ChatInput, { type ChatInputHandle } from "./components/ChatInput";
-import WelcomeScreen from "./components/WelcomeScreen";
+import WelcomeScreen, {
+  type WelcomeQuickCard,
+} from "./components/WelcomeScreen";
 import AgentNotReadyScreen from "./components/AgentNotReadyScreen";
 import AgentProfileDrawer from "../../components/AgentProfileDrawer";
 import TrajectoryDrawer from "./components/TrajectoryDrawer";
@@ -109,6 +111,37 @@ import styles from "./index.module.less";
 import TenantSwitcher from "../../demo/TenantSwitcher";
 import { useDemoTenant } from "../../demo/DemoTenantContext";
 import { saveResearchContext, trackEvent } from "../../demo/storage";
+
+const INDUSTRY_RESEARCH_QUICK_CARDS: WelcomeQuickCard[] = [
+  {
+    title: "产业链全景",
+    description: "识别上下游关键环节、核心玩家与价值卡点",
+    prompt: "调研人形机器人产业，重点分析产业链全景与关键卡点",
+    color: "#fde8ec",
+    icon_name: "network",
+  },
+  {
+    title: "重点企业竞争",
+    description: "比较龙头企业技术路线、量产和订单进展",
+    prompt: "调研人形机器人产业，重点分析重点企业竞争格局与量产进展",
+    color: "#fffbeb",
+    icon_name: "building",
+  },
+  {
+    title: "风险冲击推演",
+    description: "追踪供应链、技术迭代和市场风险的传导",
+    prompt: "调研人形机器人产业，重点分析供应链、技术迭代和市场风险冲击",
+    color: "#f5f3ff",
+    icon_name: "triangle-alert",
+  },
+  {
+    title: "政策与区域机会",
+    description: "分析政策支持、区域集群和项目落地机会",
+    prompt: "调研人形机器人产业，重点分析政策支持与区域产业集群机会",
+    color: "#ecfdf5",
+    icon_name: "landmark",
+  },
+];
 
 export default function ChatPage() {
   return <ChatPageInner />;
@@ -257,6 +290,11 @@ function ChatPageInner() {
 
   const { quickCards: expertQuickCards, welcomeSuffix } =
     useExpertChatWelcome(activeAgent);
+  const welcomeQuickCards = tenant.enabledCapabilities.includes(
+    "industry_research",
+  )
+    ? INDUSTRY_RESEARCH_QUICK_CARDS
+    : expertQuickCards;
   const { skills: chatSkills } = useSkills(
     chatSkillCatalogAgentId(resolvedAgentId, agentChatReady, agentsLoading),
   );
@@ -723,7 +761,7 @@ function ChatPageInner() {
             id: assistantId,
             role: "assistant",
             content:
-              "正在调用 Kimi Search Pro 检索最新公开资料，并由 Kimi 模型分析产业链和重点企业……",
+              "正在调用 Kimi Search Pro 检索最新公开资料，并围绕你的研究方向形成管理层结论、关键发现和行动建议……",
             timestamp: Date.now() + 1,
             status: "done",
           },
@@ -731,15 +769,15 @@ function ChatPageInner() {
         void industryResearchApi
           .analyze(question)
           .then((result) => {
-            const contextId = `ctx_robot_${Date.now()}`;
+            const contextId = `ctx_industry_${Date.now()}`;
             saveResearchContext({
               id: contextId,
               tenantId: tenant.id,
               userId: tenant.defaultUser.id,
               capabilityId: "industry_research",
-              industryId: "robot",
+              industryId: "live",
               industryName: result.industry_name,
-              analysisType: "live_kimi_research",
+              analysisType: result.research_focus,
               query: question,
               createdAt: result.generated_at,
               liveResult: result,
@@ -763,10 +801,14 @@ function ChatPageInner() {
                       metadata: {
                         demoApplicationCard: {
                           applicationId: "industry_research",
-                          title: "产业智能研究",
-                          subtitle: `${result.industry_name} · Kimi 实时分析`,
+                          title: result.focus_title,
+                          subtitle: `${result.industry_name} · Kimi 实时研究`,
                           industryName: result.industry_name,
-                          tags: ["真实公开数据", "产业链", "重点企业"],
+                          tags: [
+                            "真实公开数据",
+                            result.focus_title,
+                            "管理层摘要",
+                          ],
                           metrics: [
                             {
                               label: "重点企业",
@@ -782,6 +824,8 @@ function ChatPageInner() {
                           actionText: "进入产业研究驾驶舱",
                           live: true,
                           model: result.model,
+                          focus: result.research_focus,
+                          focusTitle: result.focus_title,
                           sources: result.sources,
                         },
                       },
@@ -1461,7 +1505,7 @@ function ChatPageInner() {
                 <WelcomeScreen
                   agentName={activeAgent?.name ?? null}
                   welcomeSuffix={welcomeSuffix}
-                  quickCards={expertQuickCards}
+                  quickCards={welcomeQuickCards}
                   onPromptClick={handlePromptClick}
                   hideMascot={isStreaming || liveSpeakers.length > 0}
                   isTeam={isTeamChat}

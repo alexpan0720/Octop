@@ -1,0 +1,120 @@
+.card {
+  width: min(660px, 100%);
+  margin-top: 14px;
+  padding: 18px;
+  border: 1px solid var(--fn-color-brand-border);
+  border-radius: var(--fn-radius-lg);
+  background: var(--fn-bg-container);
+}
+
+.header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+
+  > div {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  strong {
+    font-size: 14px;
+  }
+
+  span:not(.icon) {
+    padding: 2px 7px;
+    border-radius: 999px;
+    color: var(--fn-color-success);
+    font-size: 11px;
+    background: color-mix(in srgb, var(--fn-color-success) 9%, transparent);
+  }
+}
+
+.icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--fn-color-brand);
+  background: var(--fn-color-brand-light);
+}
+
+.card h3 {
+  margin: 14px 0 5px;
+  font-size: 17px;
+}
+
+.card > p {
+  margin: 0;
+  color: var(--fn-text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 16px 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--fn-border-secondary);
+  border-bottom: 1px solid var(--fn-border-secondary);
+
+  > div {
+    padding: 0 12px;
+    border-left: 1px solid var(--fn-border-secondary);
+
+    &:first-child {
+      padding-left: 0;
+      border-left: 0;
+    }
+  }
+
+  strong,
+  span {
+    display: block;
+  }
+
+  strong {
+    font-size: 17px;
+  }
+
+  span {
+    margin-top: 2px;
+    color: var(--fn-text-tertiary);
+    font-size: 11px;
+  }
+}
+
+.footer {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+
+  > span {
+    color: var(--fn-text-tertiary);
+    font-size: 11px;
+  }
+
+  button {
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    color: var(--fn-color-brand);
+    font-weight: 600;
+    font-size: 13px;
+    background: transparent;
+    cursor: pointer;
+  }
+}
+
+@media (max-width: 620px) {
+  .footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

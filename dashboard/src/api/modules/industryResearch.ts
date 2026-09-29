@@ -11,6 +11,8 @@ export interface IndustryResearchSource {
 export interface LiveIndustryResearch {
   industry_name: string;
   executive_summary: string;
+  key_findings: string[];
+  recommended_actions: string[];
   chain: Record<"upstream" | "midstream" | "downstream", string[]>;
   key_companies: Array<{
     name: string;
@@ -24,8 +26,12 @@ export interface LiveIndustryResearch {
   query: string;
   model: string;
   generated_at: string;
+  research_focus: IndustryResearchFocus;
+  focus_title: string;
   sources: IndustryResearchSource[];
 }
+
+export type IndustryResearchFocus = "chain" | "companies" | "risks" | "policy";
 
 export const industryResearchApi = {
   analyze: (query: string) =>

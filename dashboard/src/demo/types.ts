@@ -79,6 +79,8 @@ export interface ApplicationCardData {
   actionText: string;
   live?: boolean;
   model?: string;
+  focus?: import("../api/modules/industryResearch").IndustryResearchFocus;
+  focusTitle?: string;
   sources?: Array<{
     index: number;
     title: string;

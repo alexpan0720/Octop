@@ -13,6 +13,42 @@ from octop.infra.errors import ErrorCode, OctopError
 _SEARCH_TIMEOUT = 45.0
 _MODEL_TIMEOUT = 120.0
 
+_FOCUS_CONFIG = {
+    "chain": {
+        "title": "产业链全景",
+        "keywords": ("产业链", "上游", "中游", "下游", "关键环节", "卡点"),
+        "search_hint": "产业链 上游 中游 下游 核心零部件 供需格局",
+    },
+    "companies": {
+        "title": "重点企业竞争",
+        "keywords": ("企业", "竞争", "龙头", "公司", "量产", "订单"),
+        "search_hint": "重点企业 竞争格局 最新财报 订单 量产 市场份额",
+    },
+    "risks": {
+        "title": "风险冲击推演",
+        "keywords": ("风险", "冲击", "传导", "供应链", "制裁", "短缺"),
+        "search_hint": "供应链风险 技术迭代 市场风险 成本传导 风险事件",
+    },
+    "policy": {
+        "title": "政策与区域机会",
+        "keywords": ("政策", "区域", "机会", "补贴", "产业集群", "招商"),
+        "search_hint": "产业政策 地方支持 区域集群 招商 项目落地 投资机会",
+    },
+}
+
+
+def _research_focus(query: str) -> tuple[str, str, str]:
+    """Resolve the requested decision lens without changing the user's query."""
+    best_key = "chain"
+    best_score = 0
+    for key, config in _FOCUS_CONFIG.items():
+        score = sum(query.count(keyword) for keyword in config["keywords"])
+        if score > best_score:
+            best_key = key
+            best_score = score
+    config = _FOCUS_CONFIG[best_key]
+    return best_key, str(config["title"]), str(config["search_hint"])
+
 
 def _kimi_provider(services: Any) -> Any:
     for row in services.provider_repo.list_all():
@@ -60,9 +96,10 @@ async def run_industry_research(
     base_url = (row.base_url or "https://api.moonshot.cn/v1").rstrip("/")
     headers = {"Authorization": f"Bearer {row.api_key}"}
     year = datetime.now(UTC).year
+    focus_key, focus_title, search_hint = _research_focus(query)
     search_queries = [
-        f"{year} 中国人形机器人产业链 核心零部件 市场进展 政策 官方",
-        f"{year} 人形机器人重点企业 最新财报 订单 量产 宇树 优必选 埃斯顿 汇川",
+        f"{year} {query} 最新进展 官方 行业研究",
+        f"{year} {query} {search_hint}",
     ]
 
     async with httpx.AsyncClient(headers=headers) as client:
@@ -106,22 +143,27 @@ async def run_industry_research(
             for index, item in enumerate(sources, 1)
         )
         system_prompt = (
-            "你是集团产业战略研究员。只允许依据提供的实时检索材料作答；"
+            "你是服务集团管理层的产业战略研究员。只允许依据提供的实时检索材料作答；"
             "事实后必须用[序号]引用来源，不得虚构市场规模、订单、财务数据。"
+            "需要优先回答决策问题而不是堆砌行业知识。"
             "如果材料不足，应明确写‘公开材料不足’。输出必须是合法 JSON。"
         )
         user_prompt = f"""研究问题：{query}
+研究焦点：{focus_title}
 
 检索材料：
 {source_text}
 
 请输出以下 JSON 字段：
 industry_name（字符串）、executive_summary（适合管理层阅读的 Markdown）、
+key_findings（3 条字符串数组，每条必须带[序号]引用）、
+recommended_actions（1-3 条可执行建议的字符串数组，每条说明动作对象）、
 chain（对象，含 upstream/midstream/downstream 三个字符串数组）、
 key_companies（数组，每项含 name/stage/position/evidence）、
 risks（字符串数组）、opportunities（字符串数组）、
 data_as_of（字符串）、source_indexes_used（整数数组）。
-executive_summary 必须覆盖产业链结构、5-8 家重点企业、风险和建议，并保留[序号]引用。"""
+executive_summary 用 180-260 字先给结论，再给依据，并保留[序号]引用。
+围绕“{focus_title}”展开，但仍需提供完整产业链、重点企业、风险和机会数据，便于同一驾驶舱切换专题。"""
         completion = await client.post(
             f"{base_url}/chat/completions",
             json={
@@ -156,6 +198,8 @@ executive_summary 必须覆盖产业链结构、5-8 家重点企业、风险和�
     ]
     return {
         **analysis,
+        "research_focus": focus_key,
+        "focus_title": focus_title,
         "query": query,
         "model": _model_id(row),
         "generated_at": datetime.now(UTC).isoformat(),

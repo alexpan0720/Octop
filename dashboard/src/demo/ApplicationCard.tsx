@@ -1,9 +1,24 @@
-import { Button, Card, Space, Tag, Typography } from "antd";
-import { ArrowRight, Network } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  Landmark,
+  Network,
+  ShieldAlert,
+  type LucideIcon,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import type { IndustryResearchFocus } from "../api/modules/industryResearch";
 import type { ApplicationCardData } from "./types";
 import { useDemoTenant } from "./DemoTenantContext";
 import { trackEvent } from "./storage";
+import styles from "./ApplicationCard.module.less";
+
+const FOCUS_ICONS: Record<IndustryResearchFocus, LucideIcon> = {
+  chain: Network,
+  companies: Building2,
+  risks: ShieldAlert,
+  policy: Landmark,
+};
 
 export default function ApplicationCard({
   data,
@@ -12,78 +27,49 @@ export default function ApplicationCard({
 }) {
   const navigate = useNavigate();
   const { tenant } = useDemoTenant();
+  const Icon = FOCUS_ICONS[data.focus ?? "chain"];
+
+  const openDashboard = () => {
+    trackEvent("application_card_click", {
+      tenantId: tenant.id,
+      userId: tenant.defaultUser.id,
+      capabilityId: "industry_research",
+      contextId: data.contextId,
+      metadata: { focus: data.focus ?? "chain" },
+    });
+    navigate(`/applications/industry-research/${data.contextId}`);
+  };
+
   return (
-    <Card
-      size="small"
-      style={{
-        marginTop: 14,
-        maxWidth: 660,
-        borderColor: "var(--fn-color-brand, #1677ff)",
-      }}
-    >
-      <Space direction="vertical" size={12} style={{ width: "100%" }}>
-        <Space>
-          <Network size={18} color="var(--fn-color-brand, #1677ff)" />
-          <Typography.Text strong>{data.title}</Typography.Text>
-          {data.live && <Tag color="green">实时联网</Tag>}
-        </Space>
+    <article className={styles.card}>
+      <div className={styles.header}>
+        <span className={styles.icon}>
+          <Icon size={19} aria-hidden="true" />
+        </span>
         <div>
-          <Typography.Title level={5} style={{ margin: 0 }}>
-            {data.subtitle}
-          </Typography.Title>
-          <Typography.Text type="secondary">
-            上中下游结构、重点企业、风险与政策的一站式分析
-          </Typography.Text>
+          <strong>{data.title}</strong>
+          <span>{data.live ? "实时联网" : "研究专题"}</span>
         </div>
-        <Space wrap>
-          {data.tags.map((tag) => (
-            <Tag key={tag}>{tag}</Tag>
-          ))}
-        </Space>
-        <Space size="large" wrap>
-          {data.metrics.map((metric) => (
-            <div key={metric.label}>
-              <Typography.Text strong style={{ fontSize: 18 }}>
-                {metric.value}
-              </Typography.Text>
-              <br />
-              <Typography.Text type="secondary">{metric.label}</Typography.Text>
-            </div>
-          ))}
-        </Space>
-        {data.live && (
-          <Typography.Text type="secondary">
-            {data.model} · {data.sources?.length || 0} 个公开来源 ·
-            点击来源可核验
-          </Typography.Text>
-        )}
-        {data.sources?.slice(0, 3).map((source) => (
-          <Typography.Link
-            key={source.url}
-            href={source.url}
-            target="_blank"
-            rel="noreferrer"
-          >
-            [{source.index}] {source.title}
-          </Typography.Link>
+      </div>
+      <h3>{data.subtitle}</h3>
+      <p>已形成管理层结论、关键发现与可核验公开证据，可进入驾驶舱继续查看。</p>
+      <div className={styles.metrics}>
+        {data.metrics.map((metric) => (
+          <div key={metric.label}>
+            <strong>{metric.value}</strong>
+            <span>{metric.label}</span>
+          </div>
         ))}
-        <Button
-          type="primary"
-          icon={<ArrowRight size={15} />}
-          iconPosition="end"
-          onClick={() => {
-            trackEvent("application_card_click", {
-              tenantId: tenant.id,
-              userId: tenant.defaultUser.id,
-              capabilityId: "industry_research",
-              contextId: data.contextId,
-            });
-            navigate(`/applications/industry-research/${data.contextId}`);
-          }}
-        >
+      </div>
+      <div className={styles.footer}>
+        <span>
+          {data.model} · {data.sources?.length ?? 0} 个公开来源
+        </span>
+        <button type="button" onClick={openDashboard}>
           {data.actionText}
-        </Button>
-      </Space>
-    </Card>
+          <ArrowRight size={15} />
+        </button>
+      </div>
+    </article>
   );
 }
