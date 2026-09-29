@@ -12,6 +12,10 @@ const PersonalizationPage = lazy(
 );
 const ACPPage = lazy(() => import("../pages/Agent/ACP"));
 const TokenUsagePage = lazy(() => import("../pages/Control/TokenUsage"));
+const IndustryResearchPage = lazy(
+  () => import("../pages/Applications/IndustryResearch"),
+);
+const OperationsDashboardPage = lazy(() => import("../pages/Operations"));
 
 // Lazy-loaded pages — Control
 const RemoteDesktopPage = lazy(() => import("../pages/Control/RemoteDesktop"));
@@ -64,6 +68,7 @@ export const pathToKey: Record<string, string> = {
   "/skills": "personalization",
   "/token-usage": "token-usage",
   "/agent-config": "agent-config",
+  "/operations": "operations",
   // Control
   "/acp": "acp",
   "/channels": "channels",
@@ -138,6 +143,8 @@ export function resolveSelectedKey(pathname: string): string {
   if (pathname.startsWith("/workbench/")) return "workbench";
   if (pathname.startsWith("/remote-desktop/")) return "remote-desktop";
   if (pathname.startsWith("/personalization/")) return "personalization";
+  if (pathname.startsWith("/applications/industry-research/"))
+    return "industry-research";
   return "";
 }
 
@@ -163,6 +170,15 @@ export const routeConfigs: RouteConfig[] = [
     element: <RedirectPreserveSearch to="/personalization/skills" />,
   },
   { path: "/token-usage", element: <TokenUsagePage /> },
+  {
+    path: "/applications/industry-research/:contextId",
+    element: <IndustryResearchPage />,
+  },
+  {
+    path: "/applications/industry-research/:contextId/company/:companyId",
+    element: <IndustryResearchPage />,
+  },
+  { path: "/operations", element: <OperationsDashboardPage /> },
 
   // Control (RequirePermission via pathPermissionKeys in MainLayout)
   { path: "/acp", element: <ACPPage /> },

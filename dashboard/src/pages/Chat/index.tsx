@@ -105,12 +105,16 @@ import {
   setPluginUiDockHandlers,
 } from "../../plugins/toolRenderers";
 import styles from "./index.module.less";
+import TenantSwitcher from "../../demo/TenantSwitcher";
+import { useDemoTenant } from "../../demo/DemoTenantContext";
+import { runDemoAgent, trackEvent } from "../../demo/storage";
 
 export default function ChatPage() {
   return <ChatPageInner />;
 }
 
 function ChatPageInner() {
+  const { tenant } = useDemoTenant();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -686,6 +690,61 @@ function ChatPageInner() {
       attachments?: ChatAttachment[],
       overrides?: ChatSendOverrides,
     ) => {
+      const trimmedText = text.trim();
+      if (trimmedText.startsWith("@产业智能研究")) {
+        const question = trimmedText.replace(/^@产业智能研究\s*/, "").trim();
+        if (!question) {
+          antMessage.info("请在 @产业智能研究 后输入研究问题");
+          return;
+        }
+        const result = runDemoAgent({
+          tenantId: tenant.id,
+          userId: tenant.defaultUser.id,
+          message: question,
+        });
+        const sessionKey = activeThreadId || "__empty__";
+        const current = chatStore.getSnapshot(sessionKey).messages;
+        chatStore.setMessages(sessionKey, [
+          ...current,
+          {
+            id: crypto.randomUUID(),
+            role: "user",
+            content: trimmedText,
+            timestamp: Date.now(),
+            status: "done",
+          },
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: result.answer,
+            timestamp: Date.now() + 1,
+            status: "done",
+            metadata: { demoApplicationCard: result.applicationCard },
+          },
+        ]);
+        trackEvent("capability_select", {
+          tenantId: tenant.id,
+          userId: tenant.defaultUser.id,
+          capabilityId: "industry_research",
+          industryId: result.context.industryId,
+          contextId: result.context.id,
+        });
+        trackEvent("question_submit", {
+          tenantId: tenant.id,
+          userId: tenant.defaultUser.id,
+          capabilityId: "industry_research",
+          industryId: result.context.industryId,
+          contextId: result.context.id,
+        });
+        trackEvent("application_card_view", {
+          tenantId: tenant.id,
+          userId: tenant.defaultUser.id,
+          capabilityId: "industry_research",
+          industryId: result.context.industryId,
+          contextId: result.context.id,
+        });
+        return;
+      }
       if (interceptUserMessage(text)) {
         // The workflow intercepted the message — don't send it to the agent
         return;
@@ -730,6 +789,7 @@ function ChatPageInner() {
       activeThreadId,
       resumeHitl,
       t,
+      tenant,
     ],
   );
 
@@ -1173,6 +1233,19 @@ function ChatPageInner() {
               .filter(Boolean)
               .join(" ")}
           >
+            <div
+              style={{
+                minHeight: 42,
+                padding: "7px 16px",
+                borderBottom: "1px solid var(--fn-border-color, #eaecf0)",
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+                background: "var(--fn-bg-elevated, #fff)",
+              }}
+            >
+              <TenantSwitcher compact={isMobile} />
+            </div>
             {/* Mobile toolbar — session list + optional title + agent profile */}
             {isMobile && (
               <div className={styles.mobileToolbar}>

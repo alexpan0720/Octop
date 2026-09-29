@@ -39,6 +39,7 @@ SIDEBAR_NAV_KEYS = frozenset(
         "admin-plugins",
         "admin-security",
         "admin-advanced",
+        "operations",
     }
 )
 _BUILTIN_SIDEBAR_GROUP_IDS = frozenset({"settings", "control", "admin"})

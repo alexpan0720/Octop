@@ -28,6 +28,7 @@ import {
   skillComposerToken,
 } from "../utils/skillSlash";
 import { useWorkspaceFileMention } from "./useWorkspaceFileMention";
+import type { DemoCapability } from "../../../demo/types";
 
 export type SlashMenuItem = {
   command: string;
@@ -56,6 +57,7 @@ interface UseSlashMentionInputParams {
    */
   availableExperts: ChatAgentOption[];
   availableSubagents?: AgentSubagentSummary[];
+  availableCapabilities?: DemoCapability[];
   agentId?: string | null;
   selectedConnectors: string[];
   onConnectorsChange?: (names: string[]) => void;
@@ -79,6 +81,7 @@ export function useSlashMentionInput({
   availableConnectors,
   availableExperts,
   availableSubagents = [],
+  availableCapabilities = [],
   agentId,
   selectedConnectors,
   onConnectorsChange,
@@ -126,6 +129,7 @@ export function useSlashMentionInput({
         availableSubagents,
         mentionFiles,
         { filesFirst: isPathLikeMentionQuery(mentionQuery) },
+        availableCapabilities,
       ),
     [
       mentionQuery,
@@ -133,6 +137,7 @@ export function useSlashMentionInput({
       mentionAgents,
       availableSubagents,
       mentionFiles,
+      availableCapabilities,
     ],
   );
 
@@ -315,7 +320,11 @@ export function useSlashMentionInput({
         focusAt(next.cursor);
         return;
       }
-      if (pick.kind === "agent" || pick.kind === "subagent") {
+      if (
+        pick.kind === "agent" ||
+        pick.kind === "subagent" ||
+        pick.kind === "capability"
+      ) {
         const tokenName = pick.kind === "subagent" ? pick.slug : pick.label;
         const next = replaceMentionQuery(
           text,
@@ -374,6 +383,7 @@ export function useSlashMentionInput({
           (availableConnectors ||
             mentionAgents.length > 0 ||
             availableSubagents.length > 0 ||
+            availableCapabilities.length > 0 ||
             agentId)
         ) {
           setMentionMenuOpen(true);
@@ -390,6 +400,7 @@ export function useSlashMentionInput({
       availableConnectors,
       mentionAgents.length,
       availableSubagents.length,
+      availableCapabilities.length,
       agentId,
     ],
   );

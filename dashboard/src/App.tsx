@@ -25,6 +25,7 @@ import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { AgentProvider } from "./context/AgentContext";
 import { LayoutModeProvider } from "./context/LayoutModeContext";
 import { VoiceOutputProvider } from "./context/VoiceOutputContext";
+import { DemoTenantProvider } from "./demo/DemoTenantContext";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { useUnauthorizedRedirect } from "./hooks/useUnauthorizedRedirect";
 import { installDesktopExternalLinks } from "./utils/desktopExternalLinks";
@@ -140,13 +141,15 @@ function ThemedApp() {
               path="/*"
               element={
                 <AuthGuard>
-                  <AgentProvider>
-                    <LayoutModeProvider>
-                      <VoiceOutputProvider>
-                        <MainLayout />
-                      </VoiceOutputProvider>
-                    </LayoutModeProvider>
-                  </AgentProvider>
+                  <DemoTenantProvider>
+                    <AgentProvider>
+                      <LayoutModeProvider>
+                        <VoiceOutputProvider>
+                          <MainLayout />
+                        </VoiceOutputProvider>
+                      </LayoutModeProvider>
+                    </AgentProvider>
+                  </DemoTenantProvider>
                 </AuthGuard>
               }
             />

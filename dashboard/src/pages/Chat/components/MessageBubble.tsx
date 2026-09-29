@@ -77,6 +77,8 @@ import { useChatToolDock } from "../ChatToolDockContext";
 import { useToolUiDockButtonStyle } from "../hooks/useToolUiDockButtonStyle";
 import type { ParsedToolOutput } from "../../../plugins/toolRenderers/types";
 import type { ToolRendererRegistration } from "../../../plugins/toolRenderers/types";
+import ApplicationCard from "../../../demo/ApplicationCard";
+import type { ApplicationCardData } from "../../../demo/types";
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -719,6 +721,9 @@ function MessageBubble({
       ) === "file",
   );
   const hasAttachments = attachments.length > 0;
+  const demoApplicationCard = message.metadata?.demoApplicationCard as
+    | ApplicationCardData
+    | undefined;
 
   // Determine if this bubble is at the top/bottom of an assistant group
   const isLastInGroup = groupPosition === "last" || groupPosition === "only";
@@ -965,6 +970,9 @@ function MessageBubble({
                     shellCommandDisabledTitle={shellCommandDisabledTitle}
                   />
                 )}
+                {demoApplicationCard ? (
+                  <ApplicationCard data={demoApplicationCard} />
+                ) : null}
               </div>
             )}
           </>

@@ -60,6 +60,7 @@ import type {
 } from "../hooks/useChatMessageQueue";
 import type { HitlSessionPolicy } from "../utils/hitlSessionPolicy";
 import styles from "../index.module.less";
+import { useDemoTenant } from "../../../demo/DemoTenantContext";
 
 /** Imperative handle exposed via ref for programmatic text injection. */
 export interface ChatInputHandle {
@@ -187,6 +188,7 @@ const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
     ref,
   ) {
     const { t, i18n } = useTranslation();
+    const { capabilities: demoCapabilities } = useDemoTenant();
     const { modal, message: antMessage } = App.useApp();
     const { commands: slashCommands, labelFor } = useSlashCommands("ui");
     const skillDisplayName = useSkillDisplayName();
@@ -396,6 +398,7 @@ const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(
       availableConnectors,
       availableExperts,
       availableSubagents,
+      availableCapabilities: demoCapabilities,
       agentId,
       selectedConnectors,
       onConnectorsChange,

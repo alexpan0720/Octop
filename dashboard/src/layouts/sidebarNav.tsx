@@ -18,6 +18,7 @@ import {
   GraduationCap,
   Shield,
   PanelsTopLeft,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import type { OctopUser } from "../api/modules/auth";
 import { navAllowed, userCan } from "../utils/permissions";
@@ -120,6 +121,7 @@ export const SIDEBAR_GROUPED_NAV_KEYS = [
   "admin-security",
   "admin-advanced",
   "agent-config",
+  "operations",
 ] as const;
 
 const GROUPED_NAV_KEY_SET = new Set<string>(SIDEBAR_GROUPED_NAV_KEYS);
@@ -158,6 +160,15 @@ export function buildNavSections(
           path: "/token-usage",
           icon: <Activity size={iconSize} strokeWidth={iconStroke} />,
           labelKey: "nav.tokenUsage",
+        },
+        {
+          key: "operations",
+          path: "/operations",
+          icon: (
+            <ChartNoAxesCombined size={iconSize} strokeWidth={iconStroke} />
+          ),
+          labelKey: "nav.operations",
+          badge: "Demo",
         },
       ],
     },

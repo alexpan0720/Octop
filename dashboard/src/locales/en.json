@@ -192,6 +192,7 @@
   },
   "nav": {
     "chat": "Conversation",
+    "operations": "AI Operations",
     "common": "Common",
     "control": "Control",
     "experts": "Experts",

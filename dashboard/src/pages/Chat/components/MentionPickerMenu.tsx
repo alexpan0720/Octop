@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { FileText, Plug } from "lucide-react";
+import { FileText, Plug, Sparkles } from "lucide-react";
+import type { DemoCapability } from "../../../demo/types";
 import type { ChatConnectorOption } from "./ConnectorPickerPopover";
 import type { ChatAgentOption } from "./ExpertAgentAvatar";
 import type { AgentSubagentSummary } from "../../../api/modules/subagents";
@@ -18,12 +19,20 @@ export type MentionPick =
   | { kind: "connector"; name: string; label: string }
   | { kind: "agent"; agent_id: string; label: string }
   | { kind: "subagent"; slug: string; label: string }
+  | {
+      kind: "capability";
+      id: string;
+      label: string;
+      description: string;
+      status: "enabled" | "coming_soon";
+    }
   | { kind: "file"; path: string; label: string };
 
 export function mentionPickKey(item: MentionPick): string {
   if (item.kind === "file") return `file:${item.path}`;
   if (item.kind === "subagent") return `subagent:${item.slug}`;
   if (item.kind === "connector") return `connector:${item.name}`;
+  if (item.kind === "capability") return `capability:${item.id}`;
   return `agent:${item.agent_id}`;
 }
 
@@ -38,9 +47,20 @@ export function buildMentionItems(
   subagents: AgentSubagentSummary[] = [],
   files: WorkspaceMentionFile[] = [],
   options: { filesFirst?: boolean } = {},
+  capabilities: DemoCapability[] = [],
 ): MentionPick[] {
   const q = query.trim().toLowerCase();
   const people: MentionPick[] = [];
+  for (const capability of capabilities) {
+    if (q && !capability.name.toLowerCase().includes(q)) continue;
+    people.push({
+      kind: "capability",
+      id: capability.id,
+      label: capability.name,
+      description: capability.description,
+      status: capability.status,
+    });
+  }
   for (const c of connectors) {
     if (
       q &&
@@ -130,11 +150,13 @@ export default function MentionPickerMenu({
   const agentSection = t("mention.experts", "Experts");
   const subagentSection = t("mention.subagents", "Subagents");
   const fileSection = t("mention.files", "Workspace files");
+  const capabilitySection = "业务能力";
 
   const sectionFor = (item: MentionPick) => {
     if (item.kind === "connector") return connSection;
     if (item.kind === "subagent") return subagentSection;
     if (item.kind === "file") return fileSection;
+    if (item.kind === "capability") return capabilitySection;
     return agentSection;
   };
 
@@ -188,7 +210,7 @@ export default function MentionPickerMenu({
             } else if (item.kind === "subagent") {
               const sub = subagents.find((s) => s.slug === item.slug);
               icon = <span aria-hidden>{sub?.emoji || "🤖"}</span>;
-            } else {
+            } else if (item.kind === "agent") {
               const agent = agents.find((a) => a.agent_id === item.agent_id);
               icon = (
                 <ExpertAgentAvatar
@@ -199,6 +221,8 @@ export default function MentionPickerMenu({
                   iconSize={11}
                 />
               );
+            } else {
+              icon = <Sparkles size={14} color="#1677ff" />;
             }
             const pathHint =
               item.kind === "file" && item.path !== item.label ? item.path : "";
@@ -215,6 +239,12 @@ export default function MentionPickerMenu({
                 <span className={styles.mentionIcon}>{icon}</span>
                 <span className={styles.mentionLabelWrap}>
                   <span className={styles.mentionLabel}>{item.label}</span>
+                  {item.kind === "capability" ? (
+                    <span className={styles.mentionPath}>
+                      {item.description} ·{" "}
+                      {item.status === "enabled" ? "已上线" : "即将上线"}
+                    </span>
+                  ) : null}
                   {pathHint ? (
                     <span className={styles.mentionPath}>{pathHint}</span>
                   ) : null}
