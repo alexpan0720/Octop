@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 from datetime import UTC, datetime
 from typing import Any
@@ -87,6 +88,32 @@ def _json_content(content: str) -> dict[str, Any]:
     return parsed
 
 
+async def _post_with_retry(
+    client: httpx.AsyncClient,
+    url: str,
+    payload: dict[str, Any],
+    *,
+    timeout: float,
+) -> httpx.Response:
+    """Retry one transient upstream failure; surface configuration errors directly."""
+    for attempt in range(2):
+        try:
+            response = await client.post(url, json=payload, timeout=timeout)
+            response.raise_for_status()
+            return response
+        except httpx.HTTPStatusError as exc:
+            if attempt == 1 or (
+                exc.response.status_code != 429
+                and exc.response.status_code < 500
+            ):
+                raise
+        except httpx.TimeoutException:
+            if attempt == 1:
+                raise
+        await asyncio.sleep(1.5)
+    raise RuntimeError("unreachable")
+
+
 async def run_industry_research(
     services: Any,
     query: str,
@@ -106,16 +133,16 @@ async def run_industry_research(
         sources: list[dict[str, str]] = []
         seen_urls: set[str] = set()
         for search_query in search_queries:
-            response = await client.post(
+            response = await _post_with_retry(
+                client,
                 f"{base_url}/tools/search_pro",
-                json={
+                {
                     "text_query": search_query,
                     "limit": 6,
                     "timeout_seconds": 30,
                 },
                 timeout=_SEARCH_TIMEOUT,
             )
-            response.raise_for_status()
             for item in response.json().get("search_results", []):
                 url = str(item.get("url") or "")
                 if not url or url in seen_urls:
@@ -164,9 +191,10 @@ risks（字符串数组）、opportunities（字符串数组）、
 data_as_of（字符串）、source_indexes_used（整数数组）。
 executive_summary 用 180-260 字先给结论，再给依据，并保留[序号]引用。
 围绕“{focus_title}”展开，但仍需提供完整产业链、重点企业、风险和机会数据，便于同一驾驶舱切换专题。"""
-        completion = await client.post(
+        completion = await _post_with_retry(
+            client,
             f"{base_url}/chat/completions",
-            json={
+            {
                 "model": _model_id(row),
                 "messages": [
                     {"role": "system", "content": system_prompt},
@@ -178,7 +206,6 @@ executive_summary 用 180-260 字先给结论，再给依据，并保留[序号]
             },
             timeout=_MODEL_TIMEOUT,
         )
-        completion.raise_for_status()
         payload = completion.json()
         content = payload["choices"][0]["message"]["content"]
         analysis = _json_content(content)
