@@ -202,10 +202,14 @@
     background: var(--fn-color-brand-light);
   }
   p {
+    display: -webkit-box;
+    overflow: hidden;
     margin: 1px 0 0;
     color: var(--fn-text-secondary);
     font-size: 13px;
     line-height: 1.55;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
   }
 }
 

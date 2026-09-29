@@ -84,7 +84,7 @@ function plainSummary(markdown: string): string {
     .slice(0, 3)
     .join("");
   const concise = firstSentences || plain;
-  return concise.length > 200 ? `${concise.slice(0, 200)}…` : concise;
+  return concise.length > 120 ? `${concise.slice(0, 120)}…` : concise;
 }
 
 function focusFromResult(result: LiveIndustryResearch): IndustryResearchFocus {
@@ -190,14 +190,14 @@ export default function IndustryResearchPage() {
   const timeZone = useServerTimezone();
   const context = getResearchContext(contextId);
   const result = context?.liveResult;
+  const resultFocus = result ? focusFromResult(result) : "chain";
   const [sourcesOpen, setSourcesOpen] = useState(false);
-  const [activeFocus, setActiveFocus] = useState<IndustryResearchFocus>(() =>
-    result ? focusFromResult(result) : "chain",
-  );
+  const [activeFocus, setActiveFocus] =
+    useState<IndustryResearchFocus>(resultFocus);
 
   useEffect(() => {
-    if (result) setActiveFocus(focusFromResult(result));
-  }, [result]);
+    setActiveFocus(resultFocus);
+  }, [contextId, resultFocus]);
 
   useEffect(() => {
     trackEvent("workspace_open", {
@@ -217,8 +217,8 @@ export default function IndustryResearchPage() {
   const actions = useMemo(() => {
     if (!result) return [];
     if (result.recommended_actions?.length)
-      return result.recommended_actions.slice(0, 2);
-    return result.opportunities.slice(0, 2);
+      return result.recommended_actions.slice(0, 1);
+    return result.opportunities.slice(0, 1);
   }, [result]);
 
   const activeConfig =

@@ -13,6 +13,7 @@ from octop.infra.errors import ErrorCode, OctopError
 
 _SEARCH_TIMEOUT = 45.0
 _MODEL_TIMEOUT = 120.0
+_COMPLETION_LOCK = asyncio.Lock()
 
 _FOCUS_CONFIG = {
     "chain": {
@@ -95,22 +96,51 @@ async def _post_with_retry(
     *,
     timeout: float,
 ) -> httpx.Response:
-    """Retry one transient upstream failure; surface configuration errors directly."""
-    for attempt in range(2):
+    """Retry transient upstream failures, honoring Kimi rate-limit hints."""
+    for attempt in range(4):
         try:
             response = await client.post(url, json=payload, timeout=timeout)
             response.raise_for_status()
             return response
         except httpx.HTTPStatusError as exc:
-            if attempt == 1 or (
-                exc.response.status_code != 429
-                and exc.response.status_code < 500
-            ):
+            status = exc.response.status_code
+            if status == 403:
+                raise OctopError(
+                    ErrorCode.INDUSTRY_RESEARCH_QUOTA_EXCEEDED,
+                    "Kimi API account is suspended or Search Pro is unavailable",
+                ) from exc
+            if status == 429:
+                try:
+                    upstream_error = exc.response.json().get("error", {})
+                except (TypeError, ValueError):
+                    upstream_error = {}
+                error_type = str(upstream_error.get("type") or "")
+                error_message = str(upstream_error.get("message") or "").lower()
+                if error_type == "exceeded_current_quota_error" or (
+                    "insufficient balance" in error_message
+                ):
+                    raise OctopError(
+                        ErrorCode.INDUSTRY_RESEARCH_QUOTA_EXCEEDED,
+                        "Kimi API account has insufficient balance or quota",
+                    ) from exc
+                if attempt == 3:
+                    raise OctopError(
+                        ErrorCode.INDUSTRY_RESEARCH_RATE_LIMITED,
+                        "Kimi rate limit persisted after automatic retries",
+                    ) from exc
+                retry_after = exc.response.headers.get("Retry-After", "")
+                try:
+                    delay = float(retry_after)
+                except ValueError:
+                    delay = 5.0 * (2**attempt)
+                await asyncio.sleep(min(max(delay, 1.0), 30.0))
+                continue
+            if status < 500 or attempt == 2:
                 raise
         except httpx.TimeoutException:
-            if attempt == 1:
+            if attempt == 2:
                 raise
-        await asyncio.sleep(1.5)
+        await asyncio.sleep(1.5 * (2**attempt))
     raise RuntimeError("unreachable")
 
 
@@ -191,21 +221,23 @@ risks（字符串数组）、opportunities（字符串数组）、
 data_as_of（字符串）、source_indexes_used（整数数组）。
 executive_summary 用 180-260 字先给结论，再给依据，并保留[序号]引用。
 围绕“{focus_title}”展开，但仍需提供完整产业链、重点企业、风险和机会数据，便于同一驾驶舱切换专题。"""
-        completion = await _post_with_retry(
-            client,
-            f"{base_url}/chat/completions",
-            {
-                "model": _model_id(row),
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                "response_format": {"type": "json_object"},
-                "thinking": {"type": "disabled"},
-                "max_tokens": 4000,
-            },
-            timeout=_MODEL_TIMEOUT,
-        )
+        async with _COMPLETION_LOCK:
+            await asyncio.sleep(2.0)
+            completion = await _post_with_retry(
+                client,
+                f"{base_url}/chat/completions",
+                {
+                    "model": _model_id(row),
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt},
+                    ],
+                    "response_format": {"type": "json_object"},
+                    "thinking": {"type": "disabled"},
+                    "max_tokens": 4000,
+                },
+                timeout=_MODEL_TIMEOUT,
+            )
         payload = completion.json()
         content = payload["choices"][0]["message"]["content"]
         analysis = _json_content(content)

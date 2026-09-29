@@ -33,10 +33,30 @@ export interface LiveIndustryResearch {
 
 export type IndustryResearchFocus = "chain" | "companies" | "risks" | "policy";
 
+function readableIndustryResearchError(error: unknown): Error {
+  if (!(error instanceof Error)) return new Error("产业研究请求失败");
+  const envelopeStart = error.message.indexOf(" - {");
+  if (envelopeStart < 0) return error;
+  try {
+    const envelope = JSON.parse(error.message.slice(envelopeStart + 3)) as {
+      error?: { message?: string };
+    };
+    if (envelope.error?.message) return new Error(envelope.error.message);
+  } catch {
+    // Keep the original transport error when the response is not an API envelope.
+  }
+  return error;
+}
+
 export const industryResearchApi = {
-  analyze: (query: string) =>
-    request<LiveIndustryResearch>("/industry-research/analyze", {
-      method: "POST",
-      body: JSON.stringify({ query }),
-    }),
+  analyze: async (query: string) => {
+    try {
+      return await request<LiveIndustryResearch>("/industry-research/analyze", {
+        method: "POST",
+        body: JSON.stringify({ query }),
+      });
+    } catch (error) {
+      throw readableIndustryResearchError(error);
+    }
+  },
 };
